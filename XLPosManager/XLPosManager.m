@@ -160,7 +160,7 @@
         //连接蓝牙要使用返回的名字
         NSDictionary *device = @{@"pos_name": bluetoothName};
         XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_SUCCESS
-                                                                respMsg:@"发现一个蓝牙设备"
+                                                                respMsg:@"搜到一个蓝牙设备"
                                                                respData:device];
         if ([XLPOSManager shareInstance].searchOneDeviceCB) {
             startCallBack([XLPOSManager shareInstance].searchOneDeviceCB, model);
@@ -182,7 +182,7 @@
 #pragma mark BluetoothDelegate2Mode 搜索蓝压设备回调
 -(void)bluetoothIsPowerOff2Mode
 {
-    XLLog(@"蓝牙状态为关闭");
+    XLLog(@"蓝牙处于未开启状态");
     [[XLPOSManager shareInstance].btDeviceFinder stopQPos2Mode];
     [[XLPOSManager shareInstance].btDeviceFinder setBluetoothDelegate2Mode:nil];
     if ([XLPOSManager shareInstance].searchCompleteCB) {
@@ -197,7 +197,7 @@
 -(void)bluetoothIsPowerOn2Mode
 {
     //蓝牙状态为打开的回调
-    XLLog(@"蓝牙状态为打开");
+    XLLog(@"蓝牙状态为开启");
 }
 
 #pragma mark - 连接设备
@@ -217,7 +217,7 @@
         [XLPOSManager shareInstance].connectDeviceFailedCB = failedCB;
         [[QPOSService sharedInstance] connectBT:identifier];
     }else{
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"设备id不能为空"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"连接设备名不能为空"];
         startCallBack(failedCB, model);
     }
     
@@ -240,7 +240,7 @@
         [XLPOSManager shareInstance].connectDeviceFailedCB = failedCB;
         [[QPOSService sharedInstance] connectBluetoothNoScan:identifier];
     }else{
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"设备id不能为空"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"连接设备名不能为空"];
         startCallBack(failedCB, model);
     }
 }
@@ -248,7 +248,7 @@
 -(void) onRequestQposConnected{
     XLLog(@"设备连接成功");
     [NSThread sleepForTimeInterval:1.0];
-    XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_SUCCESS respMsg:@"连接成功"];
+    XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_SUCCESS respMsg:@"设备连接成功"];
     if ([XLPOSManager shareInstance].connectDeviceSuccessCB) {
         startCallBack([XLPOSManager shareInstance].connectDeviceSuccessCB, model);
         [XLPOSManager shareInstance].connectDeviceSuccessCB = nil;
@@ -261,7 +261,7 @@
 -(void) onRequestQposDisconnected{
     XLLog(@"设备断开连接");
     if ([XLPOSManager shareInstance].disconnectDeviceSuccessCB) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_SUCCESS respMsg:@"连接成功"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_SUCCESS respMsg:@"设备断开连接"];
         startCallBack([XLPOSManager shareInstance].disconnectDeviceSuccessCB, model);
         [XLPOSManager shareInstance].disconnectDeviceSuccessCB = nil;
     }
@@ -279,7 +279,7 @@
         [XLPOSManager shareInstance].posTradeType == XLPayBusinessTypeCalcuateMac) {
         // 在CAP返回应答包的时候，如果是交易类型需要进行mac校验，如果这个时候POS是没有连接的，POS回调该接口，
         // 同时回调XLPayManager 失败的回调
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_POS_DISCONNECTED respMsg:@"计算MAC失败，暂无可用POS，请稍后重试"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_POS_DISCONNECTED respMsg:@"没有POS被检测到，请先搜索POS，请重试"];
         HandleResultBlock block = [[XLPayManager shareInstance] getPayManagerFailedCB];
         if (block) {
             startCallBack(block, model);
@@ -875,7 +875,7 @@
     }
     if (!tradeISO8583Params || [tradeISO8583Params count] == 0) {
         if (failedCB) {
-            XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"缺少消费冲正原始交易数据"];
+            XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(缺少消费冲正原始交易数据)"];
             startCallBack(failedCB, model);
         }
         return;
@@ -925,7 +925,7 @@
     }
     if (!cancelISO8583Params || [cancelISO8583Params count] == 0) {
         if (failedCB) {
-            XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"缺少消费撤销冲正原始交易数据"];
+            XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(缺少消费撤销冲正原始交易数据)"];
             startCallBack(failedCB, model);
         }
         return;
@@ -970,7 +970,7 @@
                             failedBlock:(HandleResultBlock) failedCB
 {
     if (!respMessageHexStr || respMessageHexStr.length <= 26) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误，缺少计算mac的入参"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(缺少计算mac的原始数据)"];
         startCallBack(failedCB, model);
         return;
     }
@@ -991,7 +991,7 @@
                           failedBlock:(HandleResultBlock) failedCB
 {
     if (!scoketMessagHexStr || scoketMessagHexStr.length <= 26) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误，缺少计算mac的入参"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(缺少计算mac的原始数据)"];
         startCallBack(failedCB, model);
         return;
     }

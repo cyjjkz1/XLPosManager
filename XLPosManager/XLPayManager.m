@@ -214,7 +214,7 @@
                     if ([fieldsData[@"39"] isEqualToString:@"00"]) {
                         [[XLPayManager shareInstance] parseTLVWithHexString:fieldsData[@"62"]];
                     }else{
-                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"下载公钥报文应答错误" respData:fieldsData];
+                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"下载公钥失败" respData:fieldsData];
                         if ([XLPayManager shareInstance].failedBlock) {
                             startCallBack([XLPayManager shareInstance].failedBlock, model);
                         }
@@ -227,7 +227,7 @@
                     if ([fieldsData[@"39"] isEqualToString:@"00"]) {
                         [[XLPayManager shareInstance] parseTLVWithHexString:fieldsData[@"62"]];
                     }else{
-                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"下载主密钥报文应答错误" respData:fieldsData];
+                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"下载主密钥失败" respData:fieldsData];
                         if ([XLPayManager shareInstance].failedBlock) {
                             startCallBack([XLPayManager shareInstance].failedBlock, model);
                         }
@@ -243,7 +243,7 @@
                             startCallBack([XLPayManager shareInstance].successBlock, model);
                         }
                     }else{
-                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"启用主密钥报文应答错误" respData:fieldsData];
+                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"启用主密钥失败" respData:fieldsData];
                         if ([XLPayManager shareInstance].failedBlock) {
                             startCallBack([XLPayManager shareInstance].failedBlock, model);
                         }
@@ -259,7 +259,7 @@
                         NSLog(@"%@", fieldsData);
                         [[XLPayManager shareInstance] parseWorkKeyWithHexString:fieldsData[@"62"]];
                     }else{
-                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"签到报文应答错误" respData:fieldsData];
+                        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_FIELD_39_RESP_ERROR respMsg:@"POS签到失败" respData:fieldsData];
                         if ([XLPayManager shareInstance].failedBlock) {
                             startCallBack([XLPayManager shareInstance].failedBlock, model);
                         }
@@ -747,6 +747,7 @@
     if (![[XLPayManager shareInstance] checkMerchantIdAndDeviceIdValiable]) {
         XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"终端号或商户号异常，请先设置终端号和商户号"];
         failedCB(model);
+        return;
     }
     
     if (![XLPayManager shareInstance].currentTerminalId) {
@@ -918,7 +919,7 @@
         return;
     }
     if (!hexString || hexString.length <= 0) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"缺少待发送报文的16进制串" respData:@{}];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(缺少待发送报文数据)" respData:@{}];
         failedCB(model);
         return;
     }
@@ -962,13 +963,13 @@
     }
     UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
     if (!image) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"签名图片原始数据获取异常"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(签名图片原始数据获取异常)"];
         startCallBack(failedCB, model);
         return;
     }
     NSData *imageData = UIImageJPEGRepresentation(image, 0.1);
     if ([imageData length] > 9000) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"上传签名图片大小应小于8.7KB"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"参数错误(上传签名图片大小应小于8.7KB"];
         startCallBack(failedCB, model);
         return;
     }
@@ -994,7 +995,7 @@
         [originCapRespParams[@"37"] description].length <= 0 ||
         [originCapRespParams[@"60"] description].length <= 0 ||
         [originCapRespParams[@"4"] description].length <= 0) {
-        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"CAP返回的交易参数异常，请重试"];
+        XLResponseModel *model = [XLResponseModel createRespMsgWithCode:RESP_PARAM_ERROR respMsg:@"CAP应答数据异常，请重试"];
         startCallBack(failedCB, model);
         return;
     }
